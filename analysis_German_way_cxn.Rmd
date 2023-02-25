@@ -1,0 +1,107 @@
+---
+title: "German way construction"
+author: "Alexander Willich & Stefan Hartmann"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    toc: true
+    toc_float: true
+    collapsed: false
+    df_print: paged
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+assignInNamespace("cedta.pkgEvalsUserCode", c(data.table:::cedta.pkgEvalsUserCode,"rtvs"), "data.table")
+```
+
+## Preliminaries
+
+session info:
+
+```{r sessionInfo, message = FALSE, warning = FALSE}
+sessionInfo()
+```
+
+Install and load packages
+
+```{r packages, warning = FALSE, message = FALSE}
+# install CRAN packages (if not yet installed)
+sapply(c("tidyverse", "devtools", "readxl", "kableExtra", "openxlsx",  "DT"), function(x) if(!is.element(x, installed.packages())) install.packages(x, dependencies = T, repos = "http://cran.us.r-project.org"))
+
+# if this doesn't work, check sfla.ch for the package
+if(!is.element("collostructions", installed.packages())) {
+  install.packages("https://sfla.ch/wp-content/uploads/2021/02/collostructions_0.2.0.tar.gz", repos = NULL)
+}
+
+
+# load packages
+library(tidyverse)
+library(collostructions) # available at sfla.ch
+library(readxl)
+library(openxlsx)
+library(kableExtra)
+library(DT)
+```
+
+# script
+
+```{r}
+
+# read data ---------------------------------------------------------------
+
+# read data
+d <- read_csv("RBKxn_true_positives.csv")
+
+# read dwds21 lemma list
+dwds <- read_delim("dwds21_verb_lemma_list", delim = "\t", 
+                   quote = "",
+                   col_names = c("Freq", "Lemma"))
+
+# get frequency list
+d_tbl <- d$X1 %>% table %>% as_tibble() %>% setNames(c("Lemma", "Freq_kx")) %>% arrange(desc(Freq_kx))
+d_tbl <- left_join(d_tbl, dwds)
+d_tbl <- replace_na(d_tbl, list(Freq = 0, Freq_kx = 0))
+# d_tbl <- d_tbl[,c(1,3,2)]
+
+# remove instances where corpus frequency < construction frequency
+d_tbl <- d_tbl[!(d_tbl$Freq < d_tbl$Freq_kx),]
+
+# collexeme analysis with G2
+collex_RBK <- collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), delta.p = T) 
+
+# add further association measures
+left_join(collex_RBK,
+          select(collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), am = "odds"), COLLEX, COLL.STR.ODDS)) %>% DT::datatable()
+
+#%>% write.xlsx("simple_collexeme_analysis_reflexive_Bewegungskonstruktion.xlsx")
+
+
+
+# reflexive Partikelverbkonstruktion ----------
+d <- read_csv("RPVKxn_true_positives.csv")
+
+# get frequency list
+d_tbl <- d$X1 %>% table %>% as_tibble() %>% setNames(c("Lemma", "Freq_kx")) %>% arrange(desc(Freq_kx))
+d_tbl <- left_join(d_tbl, dwds)
+d_tbl <- replace_na(d_tbl, list(Freq = 0, Freq_kx = 0))
+# d_tbl <- d_tbl[,c(1,3,2)]
+
+# remove instances where corpus frequency < construction frequency
+d_tbl <- d_tbl[!(d_tbl$Freq < d_tbl$Freq_kx),]
+
+# collexeme analysis with G2
+collex_RPV <- collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq)) 
+
+# add further association measures
+left_join(collex_RPV,
+          select(collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), am = "odds"), COLLEX, COLL.STR.ODDS)) %>% DT::datatable()
+
+#%>% write.xlsx("simple_collexeme_analysis_reflexive_Partikelverbkonstruktion.xlsx")
+
+
+```
+

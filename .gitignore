@@ -1,0 +1,10 @@
+# ignore all
+*
+
+# except these files
+!.gitignore
+!RBKxn_true_positives.csv
+!RPVKxn_true_positives
+!analysis_German_way_cxn.Rmd
+!analysis_German_way_cxn.html
+!index.html
