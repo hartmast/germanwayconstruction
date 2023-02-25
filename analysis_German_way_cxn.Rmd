@@ -47,9 +47,32 @@ library(kableExtra)
 library(DT)
 ```
 
-# script
+# Helper function
 
 ```{r}
+
+# helper function: if column is numeric,
+# format it in such a way that the first two
+# decimal places are displayed
+
+round_this <- function(df) {
+  
+  for(j in 1:ncol(df)) {
+    if(is.numeric(df[,j])) {
+      df[,j] <- formatC(df[,j], format = "f", digits = 2)
+    }
+  }
+  
+  return(df)
+  
+}
+
+```
+
+# reflexive movement construction
+
+```{r}
+
 
 # read data ---------------------------------------------------------------
 
@@ -74,12 +97,18 @@ d_tbl <- d_tbl[!(d_tbl$Freq < d_tbl$Freq_kx),]
 collex_RBK <- collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), delta.p = T) 
 
 # add further association measures
-left_join(collex_RBK,
-          select(collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), am = "odds"), COLLEX, COLL.STR.ODDS)) %>% DT::datatable()
+collex_RBK <- left_join(collex_RBK,
+          select(collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), am = "odds"), COLLEX, COLL.STR.ODDS)) 
 
-#%>% write.xlsx("simple_collexeme_analysis_reflexive_Bewegungskonstruktion.xlsx")
+# collex_RBK %>% round_this() %>% write.xlsx("simple_collexeme_analysis_reflexive_Bewegungskonstruktion.xlsx")
 
+collex_RBK %>% DT::datatable()
 
+```
+
+# reflexive particle-verb construction
+
+```{r}
 
 # reflexive Partikelverbkonstruktion ----------
 d <- read_csv("RPVKxn_true_positives.csv")
@@ -94,11 +123,15 @@ d_tbl <- replace_na(d_tbl, list(Freq = 0, Freq_kx = 0))
 d_tbl <- d_tbl[!(d_tbl$Freq < d_tbl$Freq_kx),]
 
 # collexeme analysis with G2
-collex_RPV <- collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq)) 
+collex_RPV <- collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), delta.p = T) 
 
 # add further association measures
-left_join(collex_RPV,
-          select(collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), am = "odds"), COLLEX, COLL.STR.ODDS)) %>% DT::datatable()
+collex_RPV <- left_join(collex_RPV,
+          select(collex(as.data.frame(d_tbl), corpsize = sum(dwds$Freq), am = "odds"), COLLEX, COLL.STR.ODDS))
+
+# collex_RPV %>% round_this %>% write.xlsx("simple_collexeme_analysis_reflexive_Partikelverbkonstruktion.xlsx")
+
+collex_RPV %>% DT::datatable()
 
 #%>% write.xlsx("simple_collexeme_analysis_reflexive_Partikelverbkonstruktion.xlsx")
 
