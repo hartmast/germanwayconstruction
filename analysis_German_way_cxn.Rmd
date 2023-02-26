@@ -150,15 +150,5 @@ collex_RPV %>% DT::datatable()
 
 ```
 
-# Covarying collexeme analysis: Reflexive particle-verb construction
 
-```{r}
-
-RPV_covar <- d %>% select(X1, Prep) %>% as.data.frame %>% collex.covar() 
-
-# write.xlsx(round_this(RPV_covar), "RPV_covar.xlsx")
-
-RPV_covar %>% DT::datatable()
-
-```
 
