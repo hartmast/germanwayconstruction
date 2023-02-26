@@ -69,7 +69,7 @@ round_this <- function(df) {
 
 ```
 
-# reflexive movement construction
+# Simple collexeme analysis: Reflexive motion construction
 
 ```{r}
 
@@ -103,10 +103,22 @@ collex_RBK <- left_join(collex_RBK,
 # collex_RBK %>% round_this() %>% write.xlsx("simple_collexeme_analysis_reflexive_Bewegungskonstruktion.xlsx")
 
 collex_RBK %>% DT::datatable()
+```
+
+# Covarying collexeme analysis: Reflexive motion construction
+
+```{r}
+
+# distinctive collexeme analysis: verb + preposition
+RM_covar <- d %>% select(X1, Prep) %>% as.data.frame %>% collex.covar(raw = TRUE)
+
+# write.xlsx(round_this(RM_covar), "RM_covar.xlsx")
+
+RM_covar %>% DT::datatable()
 
 ```
 
-# reflexive particle-verb construction
+# Simple collexeme analysis: Reflexive particle-verb construction
 
 ```{r}
 
@@ -135,6 +147,18 @@ collex_RPV %>% DT::datatable()
 
 #%>% write.xlsx("simple_collexeme_analysis_reflexive_Partikelverbkonstruktion.xlsx")
 
+
+```
+
+# Covarying collexeme analysis: Reflexive particle-verb construction
+
+```{r}
+
+RPV_covar <- d %>% select(X1, Prep) %>% as.data.frame %>% collex.covar() 
+
+# write.xlsx(round_this(RPV_covar), "RPV_covar.xlsx")
+
+RPV_covar %>% DT::datatable()
 
 ```
 
