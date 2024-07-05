@@ -1,6 +1,5 @@
 ---
 title: "German way construction"
-author: "Alexander Willich & Stefan Hartmann"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   html_document:
@@ -103,6 +102,10 @@ collex_RBK <- left_join(collex_RBK,
 # collex_RBK %>% round_this() %>% write.xlsx("simple_collexeme_analysis_reflexive_Bewegungskonstruktion.xlsx")
 
 collex_RBK %>% DT::datatable()
+
+# rename
+rbk <- d
+
 ```
 
 # Covarying collexeme analysis: Reflexive motion construction
@@ -150,5 +153,44 @@ collex_RPV %>% DT::datatable()
 
 ```
 
+# Distinctive collexeme analysis
 
+```{r}
+
+# distinctive collexeme analysis targeting frames
+
+frames_dist_collex <- left_join(
+  rbk %>% select(LexikalischerFrame) %>% table %>% as.data.frame %>% setNames(c("Frame", "Freq_RM")),
+  d %>% select(LexikalischerFrame) %>% table %>% as.data.frame %>% setNames(c("Frame", "Freq_RPV"))
+) %>% 
+  # replace NAs by 0
+  replace_na(list(Freq_RM = 0, Freq_RPV = 0)) %>%
+  # distinctive collexeme analysis
+  collex.dist() 
+
+
+# add number of lexeme types for each frame
+# in the construction with which it is associated
+
+frames_dist_collex$n_types <- numeric(nrow(frames_dist_collex))
+
+for(i in 1:nrow(frames_dist_collex)) {
+  if(as.character(frames_dist_collex[i,]$ASSOC)=="Freq_RM") {
+ frames_dist_collex$n_types[i] <- rbk[which(rbk$LexikalischerFrame==as.character(frames_dist_collex[i,]$COLLEX)),]$X1 %>% unique %>% length
+
+} else {
+  frames_dist_collex$n_types[i] <- d[which(d$LexikalischerFrame==as.character(frames_dist_collex[i,]$COLLEX)),]$X1 %>% unique %>% length
+}
+
+}
+
+#frames_dist_collex %>% round_this() %>% write.xlsx("distinctive_collexmes_frames.xlsx")
+
+
+
+frames_dist_collex %>% DT::datatable()
+
+
+
+```
 
